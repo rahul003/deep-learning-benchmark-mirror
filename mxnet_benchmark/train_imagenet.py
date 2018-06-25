@@ -12,7 +12,7 @@ from gluoncv.data import imagenet
 from gluoncv.model_zoo import get_model
 from gluoncv.utils import makedirs
 import re, math
-from lr_scheduler import MultiFactorScheduler, PolyScheduler
+from lr_scheduler import MultiFactorScheduler, PolyScheduler, WarmupScheduler
 
 # CLI
 parser = argparse.ArgumentParser(description='Train a model for image classification.')
