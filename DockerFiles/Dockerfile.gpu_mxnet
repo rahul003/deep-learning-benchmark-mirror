@@ -52,6 +52,7 @@ RUN pip --no-cache-dir install \
 	boto3 \
 	awscli
 
+RUN pip install gluoncv==0.2.0b20180625
 
 #RUN pip install numpy tensorflow-serving-api==1.5
 
