@@ -89,7 +89,8 @@ num_training_samples = 1281167
 
 num_gpus = len(opt.gpus.split(','))
 batch_size *= max(1, num_gpus)
-context = [mx.gpu(i) for i in opt.gpus.split(',')] if num_gpus > 0 else [mx.cpu()]
+context = [mx.gpu(int(i)) for i in opt.gpus.split(',')] if num_gpus > 0 else [mx.cpu()]
+print(context)
 num_workers = opt.num_workers
 
 kv = mx.kv.create(opt.kvstore)
@@ -121,7 +122,7 @@ elif model_name.startswith('resnext'):
 if opt.last_gamma:
     kwargs['last_gamma'] = True
 
-optimizer = 'nag'
+optimizer = 'sgd'
 optimizer_params = {'wd': opt.wd, 'momentum': opt.momentum, 'lr_scheduler': lr_scheduler}
 if opt.dtype != 'float32':
     optimizer_params['multi_precision'] = True
@@ -291,7 +292,6 @@ def train(ctx):
                 loss = [L(yhat, y) for yhat, y in zip(outputs, label)]
             for l in loss:
                 l.backward()
-            lr_scheduler.update(i, epoch)
             trainer.step(batch_size)
 
             acc_top1.update(label, outputs)
@@ -325,6 +325,7 @@ def train(ctx):
 
 def main():
     if opt.mode == 'symbolic':
+        print('symbolic')
         data = mx.sym.var('data')
         if opt.dtype == 'float16':
             data = mx.sym.Cast(data=data, dtype=np.float16)
@@ -333,7 +334,6 @@ def main():
             out = mx.sym.Cast(data=out, dtype=np.float32)
         softmax = mx.sym.SoftmaxOutput(out, name='softmax')
         mod = mx.mod.Module(softmax, context=context)
-        train_data, val_data, batch_fn = get_data_rec(opt.rec_train, opt.rec_train_idx, opt.rec_val, opt.rec_val_idx, batch_size, num_workers)
         mod.fit(train_data,
                 eval_data = val_data,
                 num_epoch=opt.num_epochs,
@@ -341,11 +341,12 @@ def main():
                 batch_end_callback = mx.callback.Speedometer(batch_size, max(1, opt.log_interval)),
                 epoch_end_callback = mx.callback.do_checkpoint('imagenet-%s'% opt.model, period=save_frequency),
                 optimizer = optimizer,
-                optimizer_params = optimizer_params,
-                initializer = mx.init.MSRAPrelu())
+                optimizer_params=optimizer_params,
+                initializer=mx.init.MSRAPrelu())
         if opt.save_frequency:
             mod.save_parameters('imagenet-%s-%d-final.params'%(opt.model, opt.epochs))
     else:
+        print('hybrid')
         if opt.mode == 'hybrid':
             net.hybridize(static_alloc=True, static_shape=True)
         train(context)
