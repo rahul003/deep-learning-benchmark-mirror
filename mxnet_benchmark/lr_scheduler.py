@@ -188,6 +188,7 @@ class WarmupScheduler(LRScheduler):
         super(WarmupScheduler, self).__init__(base_lr, warmup_steps)
         self.scheduler = scheduler
         self.lr_final = self.scheduler.base_lr
+        self.lr_begin = self.base_lr
         if self.lr_begin > self.lr_final:
             raise ValueError("Final lr has to be higher than beginning lr")
         if warmup_steps <= 0:

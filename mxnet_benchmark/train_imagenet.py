@@ -18,13 +18,13 @@ from lr_scheduler import MultiFactorScheduler, PolyScheduler, WarmupScheduler
 parser = argparse.ArgumentParser(description='Train a model for image classification.')
 parser.add_argument('--data-dir', type=str, default='~/.mxnet/datasets/imagenet',
                     help='training and validation pictures to use.')
-parser.add_argument('--rec-train', type=str, default='~/data/train-passthrough.rec',
+parser.add_argument('--rec-train', type=str, default='/media/ramdisk/data/train-passthrough.rec',
                     help='the training data')
-parser.add_argument('--rec-train-idx', type=str, default='~/data/train-passthrough.idx',
+parser.add_argument('--rec-train-idx', type=str, default='/media/ramdisk/data/train-passthrough.idx',
                     help='the index of training data')
-parser.add_argument('--rec-val', type=str, default='~/data/val-passthrough.rec',
+parser.add_argument('--rec-val', type=str, default='/media/ramdisk/data/val-passthrough.rec',
                     help='the validation data')
-parser.add_argument('--rec-val-idx', type=str, default='~/data/val-passthrough.idx',
+parser.add_argument('--rec-val-idx', type=str, default='/media/ramdisk/data/val-passthrough.idx',
                     help='the index of validation data')
 parser.add_argument('--use-rec', action='store_true',
                     help='use image record iter for data input. default is false.')
@@ -215,7 +215,7 @@ def get_data_loader(data_dir, batch_size, num_workers):
         normalize
     ])
     transform_test = transforms.Compose([
-        transforms.Resize(256),
+        transforms.Resize(256, keep_ratio=True),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         normalize
