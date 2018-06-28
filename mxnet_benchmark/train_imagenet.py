@@ -151,20 +151,19 @@ def get_data_rec(rec_train, rec_train_idx, rec_val, rec_val_idx, batch_size, num
         preprocess_threads  = num_workers,
         shuffle             = True,
         batch_size          = batch_size,
-
+        label_width         = 1,
         data_shape          = (3, 224, 224),
         mean_r              = mean_rgb[0],
         mean_g              = mean_rgb[1],
         mean_b              = mean_rgb[2],
-     #   std_r               = std_rgb[0],
-     #   std_g               = std_rgb[1],
-     #   std_b               = std_rgb[2],
         rand_mirror         = True,
+        rand_crop           = False,
         random_resized_crop = True,
         max_aspect_ratio    = 4. / 3.,
         min_aspect_ratio    = 3. / 4.,
         max_random_area     = 1,
         min_random_area     = 0.08,
+        verbose             = False,
         brightness          = jitter_param,
         saturation          = jitter_param,
         contrast            = jitter_param,
@@ -179,15 +178,14 @@ def get_data_rec(rec_train, rec_train_idx, rec_val, rec_val_idx, batch_size, num
         preprocess_threads  = num_workers,
         shuffle             = False,
         batch_size          = batch_size,
-
         resize              = 256,
+        label_width         = 1,
+        rand_crop           = False,
+        rand_mirror         = False,
         data_shape          = (3, 224, 224),
         mean_r              = mean_rgb[0],
         mean_g              = mean_rgb[1],
-        mean_b              = mean_rgb[2],
-    #    std_r               = std_rgb[0],
-    #    std_g               = std_rgb[1],
-    #    std_b               = std_rgb[2]
+        mean_b              = mean_rgb[2]
     )
 
     if 'dist' in opt.kvstore and not 'async' in opt.kvstore:
@@ -329,6 +327,7 @@ def main():
         data = mx.sym.var('data')
         if opt.dtype == 'float16':
             data = mx.sym.Cast(data=data, dtype=np.float16)
+            net.cast(np.float16)
         out = net(data)
         if opt.dtype == 'float16':
             out = mx.sym.Cast(data=out, dtype=np.float32)
