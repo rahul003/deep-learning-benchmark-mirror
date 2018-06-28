@@ -103,7 +103,7 @@ elif opt.lr_mode == 'step':
     lr_decay = opt.lr_decay
     lr_decay_epoch = [int(i) for i in opt.lr_decay_epoch.split(',')]
     steps = [epoch_size * x for x in lr_decay_epoch]
-    lr_scheduler = MultiFactorScheduler(step=steps, factor=lr_decay)
+    lr_scheduler = MultiFactorScheduler(step=steps, factor=lr_decay, base_lr=opt.lr)
 else:
     raise ValueError
 
@@ -156,9 +156,9 @@ def get_data_rec(rec_train, rec_train_idx, rec_val, rec_val_idx, batch_size, num
         mean_r              = mean_rgb[0],
         mean_g              = mean_rgb[1],
         mean_b              = mean_rgb[2],
-        std_r               = std_rgb[0],
-        std_g               = std_rgb[1],
-        std_b               = std_rgb[2],
+     #   std_r               = std_rgb[0],
+     #   std_g               = std_rgb[1],
+     #   std_b               = std_rgb[2],
         rand_mirror         = True,
         random_resized_crop = True,
         max_aspect_ratio    = 4. / 3.,
@@ -185,9 +185,9 @@ def get_data_rec(rec_train, rec_train_idx, rec_val, rec_val_idx, batch_size, num
         mean_r              = mean_rgb[0],
         mean_g              = mean_rgb[1],
         mean_b              = mean_rgb[2],
-        std_r               = std_rgb[0],
-        std_g               = std_rgb[1],
-        std_b               = std_rgb[2]
+    #    std_r               = std_rgb[0],
+    #    std_g               = std_rgb[1],
+    #    std_b               = std_rgb[2]
     )
 
     if 'dist' in opt.kvstore and not 'async' in opt.kvstore:
@@ -243,6 +243,8 @@ else:
 acc_top1 = mx.metric.Accuracy()
 acc_top5 = mx.metric.TopKAccuracy(5)
 
+initializer = mx.init.Xavier(rnd_type='gaussian', factor_type="in", magnitude=2)
+
 save_frequency = opt.save_frequency
 if opt.save_dir and save_frequency:
     save_dir = opt.save_dir
@@ -269,7 +271,7 @@ def test(ctx, val_data):
 def train(ctx):
     if isinstance(ctx, mx.Context):
         ctx = [ctx]
-    net.initialize(mx.init.MSRAPrelu(), ctx=ctx)
+    net.initialize(initializer, ctx=ctx)
 
     trainer = gluon.Trainer(net.collect_params(), optimizer, optimizer_params, kvstore=kv)
 
@@ -340,7 +342,7 @@ def main():
                 epoch_end_callback = mx.callback.do_checkpoint('imagenet-%s'% opt.model, period=save_frequency),
                 optimizer = optimizer,
                 optimizer_params=optimizer_params,
-                initializer=mx.init.MSRAPrelu())
+                initializer=initializer)
         if opt.save_frequency:
             mod.save_parameters('imagenet-%s-%d-final.params'%(opt.model, opt.epochs))
     else:
