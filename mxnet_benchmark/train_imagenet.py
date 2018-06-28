@@ -90,7 +90,6 @@ num_training_samples = 1281167
 num_gpus = len(opt.gpus.split(','))
 batch_size *= max(1, num_gpus)
 context = [mx.gpu(int(i)) for i in opt.gpus.split(',')] if num_gpus > 0 else [mx.cpu()]
-print(context)
 num_workers = opt.num_workers
 
 kv = mx.kv.create(opt.kvstore)
@@ -323,7 +322,6 @@ def train(ctx):
 
 def main():
     if opt.mode == 'symbolic':
-        print('symbolic')
         data = mx.sym.var('data')
         if opt.dtype == 'float16':
             data = mx.sym.Cast(data=data, dtype=np.float16)
@@ -345,7 +343,6 @@ def main():
         if opt.save_frequency:
             mod.save_parameters('imagenet-%s-%d-final.params'%(opt.model, opt.epochs))
     else:
-        print('hybrid')
         if opt.mode == 'hybrid':
             net.hybridize(static_alloc=True, static_shape=True)
         train(context)
