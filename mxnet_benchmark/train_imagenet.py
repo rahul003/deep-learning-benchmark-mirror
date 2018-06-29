@@ -94,7 +94,7 @@ num_workers = opt.num_workers
 
 kv = mx.kv.create(opt.kvstore)
 
-num_batches = math.ceil(int(num_training_samples // kv.num_workers)/batch_size)
+num_batches = int(math.ceil(int(num_training_samples // kv.num_workers)/batch_size))
 epoch_size = num_batches
 
 if opt.lr_mode == 'poly':
