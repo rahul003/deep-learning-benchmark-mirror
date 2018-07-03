@@ -309,8 +309,8 @@ def train(ctx):
 
         logging.info('[Epoch %d] Train-accuracy=%f'%(epoch, top1))
         logging.info('[Epoch %d] Speed: %d samples/sec\tTime cost=%f'%(epoch, throughput, time.time()-tic))
-        logging.info('[Epoch %d] Validation-accuracy=%f'%(1 - err_top1_val))
-        logging.info('[Epoch %d] Validation-top_k_accuracy_5=%f'%(1 - err_top5_val))
+        logging.info('[Epoch %d] Validation-accuracy=%f'%(epoch, 1 - err_top1_val))
+        logging.info('[Epoch %d] Validation-top_k_accuracy_5=%f'%(epoch, 1 - err_top5_val))
 
         if save_frequency and err_top1_val < best_val_score and epoch > 50:
             best_val_score = err_top1_val
