@@ -335,7 +335,15 @@ def main():
             out = mx.sym.Cast(data=out, dtype=np.float32)
         softmax = mx.sym.SoftmaxOutput(out, name='softmax')
         mod = mx.mod.Module(softmax, context=context)
+        if opt.use_pretrained:
+            arg_params = {} 
+            for x in net.collect_params().values():
+                x.reset_ctx(mx.cpu())
+                arg_params[x.name] = x.data()
+        else:
+            arg_params = None
         mod.fit(train_data,
+                arg_params=arg_params,
                 eval_data = val_data,
                 num_epoch=opt.num_epochs,
                 kvstore=kv,
