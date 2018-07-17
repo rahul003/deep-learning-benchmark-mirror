@@ -207,5 +207,5 @@ class WarmupScheduler(LRScheduler):
             else:
                 # uses warmup steps of given scheduler to determine the number of
                 # updates that scheduler should start after
-                self.lrs_updates[num_update] = self.scheduler(num_update - self.scheduler.warmup_steps)
+                self.lrs_updates[num_update] = self.scheduler(num_update)
         return self.lrs_updates[num_update]
